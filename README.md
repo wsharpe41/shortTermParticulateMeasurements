@@ -1,1 +1,2 @@
 # shortTermParticulateMeasurements
+The EPA's IMPROVE and CSN networks are the USAs primary provider of accuract PM data. One drawback to these networks is that they require postprocessing of their data, which can take a few days time. Thus data is always a few days behind. This project uses a RNN to try to close that gap and predict real-time PM2.5 hourly concentrations based off of previously reported values.
