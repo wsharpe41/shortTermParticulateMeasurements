@@ -1,1 +1,3 @@
-github-copilot
+numpy
+pandas
+sklearn
