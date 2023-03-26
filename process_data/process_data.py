@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+import json
+import codecs
 
 def split_csv_to_datapoints(path, dp_length,pred_length):
     # Read csv file
@@ -25,52 +27,48 @@ def split_csv_to_datapoints(path, dp_length,pred_length):
         X = np.append(X, [datapoint], axis=0)
         y = np.append(y, [label], axis=0)
         # Get correlation between datapoint and label
-        corr = np.corrcoef(datapoint, label)[0, 1]
+        #corr = np.corrcoef(datapoint, label)[0, 1]
         # Append correlation to correlations
-        correlations.append(corr)
+        #correlations.append(corr)
+    return X, y
 
-
-    return X, y, np.mean(correlations)
-
-def split_all_files():
+def split_all_files(input_path,output_path):
     # Path to pmu_data
-    path = 'pm_data/'
-    dp_length = 24
+    dp_length = 48
     pred_length = 6
     # Create an empty np array
     X = np.empty((0, dp_length))
     y = np.empty((0, pred_length))
-    correlations = []
     # For each file in pmu_data, split into datapoints of length 100
-    for file in os.listdir(path):
+    for file in os.listdir(input_path):
+        if "0001" not in file:
+            continue
         print(file)
-        datapoints,labels,corr = split_csv_to_datapoints(path + file, dp_length,pred_length)
+        datapoints,labels = split_csv_to_datapoints(input_path + file, dp_length,pred_length)
         # get the averages of correlations
-        print(corr)
-        correlations.append(corr)
         # Append all datapoints to data
         X = np.append(X, datapoints, axis=0)
         y = np.append(y, labels, axis=0)
     
-    print(f"Average Correlation: {np.mean(correlations)}")
-    print(correlations)
-    plt.plot(correlations)
-    # label plot
-    plt.xlabel('Datapoint')
-    plt.ylabel('Correlation')
-    plt.title('Correlation between datapoint and next 6 hours')
-    plt.show()
-    
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
     y = scaler.fit_transform(y)
-    # plot average of each item in correlations
-    # For each item in correlations, get the mean    
 
-
-   
+    write_input_and_output(X,y,output_path)  
     return X, y
 
 
+def write_input_and_output(X,y,output_path):
+    X = X.tolist()
+    y = y.tolist()
+    x_path = output_path + "/input_data.json"
+    y_path = output_path + "/target_data.json"
+    json.dump(X, codecs.open(x_path, 'w', encoding='utf-8'), indent=4, separators=(",",":"))
+    json.dump(y,codecs.open(y_path, 'w', encoding='utf-8'),indent=4, separators=(",",":"))
+    return
+
+
 if __name__ == '__main__':
-    split_all_files()
+    split_all_files("pm_data/train_data","processed_data/train_data")
+    split_all_files("pm_data/test_data","processed_data/test_data")
+
