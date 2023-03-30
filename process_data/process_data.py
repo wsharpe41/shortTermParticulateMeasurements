@@ -32,24 +32,18 @@ def split_csv_to_datapoints(path, dp_length,pred_length):
         #correlations.append(corr)
     return X, y
 
-def split_all_files(input_path,output_path):
+def split_all_files(input_path,output_path,dp_length,pred_length):
     # Path to pmu_data
-    dp_length = 48
-    pred_length = 6
     # Create an empty np array
     X = np.empty((0, dp_length))
     y = np.empty((0, pred_length))
     # For each file in pmu_data, split into datapoints of length 100
     for file in os.listdir(input_path):
-        if "0001" not in file:
-            continue
-        print(file)
         datapoints,labels = split_csv_to_datapoints(input_path + file, dp_length,pred_length)
         # get the averages of correlations
         # Append all datapoints to data
         X = np.append(X, datapoints, axis=0)
-        y = np.append(y, labels, axis=0)
-    
+        y = np.append(y, labels, axis=0)    
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
     y = scaler.fit_transform(y)
@@ -69,6 +63,5 @@ def write_input_and_output(X,y,output_path):
 
 
 if __name__ == '__main__':
-    split_all_files("pm_data/train_data","processed_data/train_data")
-    split_all_files("pm_data/test_data","processed_data/test_data")
+    split_all_files("pm_data/","processed_data/train_data",dp_length=48,pred_length=6)
 
