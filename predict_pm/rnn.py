@@ -8,35 +8,38 @@ from torchmetrics import MeanSquaredError
 
 class RecurrentNeuralNetwork(nn.Module):
     
-    def __init__(self,rnn_layers,hidden_size,in_size,out_size,num_layers,dropout) -> None:
+    def __init__(self,hidden_size,in_size,out_size,num_layers,dropout) -> None:
         super().__init__()
-        self.rnn_layers = rnn_layers
+        #self.rnn_layers = rnn_layers
         self.hidden_size = hidden_size
         self.input_size = in_size
         self.output_size = out_size
-
+        self.num_layers = num_layers
         # Add LSTM models
-        self.lstm = nn.GRU(self.input_size,self.hidden_size,num_layers=num_layers,dropout=dropout,batch_first=True)
+        self.lstm = nn.RNN(self.input_size,self.hidden_size,num_layers=self.num_layers,dropout=dropout,batch_first=True)
         # Add dense layer
         self.dense = nn.Linear(self.hidden_size,self.output_size)
         self.relu = nn.ReLU()
 
     def forward(self,x):
         # Create architecture here
-        batch_size = x[0]
-        h_0 = torch.zeros(self.rnn_layers,batch_size,self.hidden_size).requires_grad_()
-        c_0 = torch.zeros(self.rnn_layers,batch_size,self.hidden_size).requires_grad_()
-        output, (h_n, c_n) = self.lstm(x,(h_0,c_0))
-        output = self.ReLU(output)
-        output = self.dense(self.hidden_size, self.out_size)
-        return output.flatten()
+        x= x.unsqueeze(2)
+        batch_size = x.shape[0]
+        h_0 = torch.zeros(self.num_layers,batch_size,self.hidden_size).requires_grad_()
+        #c_0 = torch.zeros(self.num_layers,batch_size,self.hidden_size).requires_grad_()
+        output, h_n = self.lstm(x,h_0)
+        output = self.relu(output)
+        # Change output shape from batch_size,sequence_length,hidden_size to batch_size,hidden_size
+        output = output[:, -1, :]
+        output = self.dense(output)
+        return output
     
     def train_model(self,epochs,lr,loss_function,data_loader):
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        #device = "cuda" if torch.cuda.is_available() else "cpu"
         all_loss = []
         optimizer = torch.optim.Adam(self.parameters(),lr)
+        num_batches = len(data_loader)
         for i in range(epochs):
-            #num_batches = len(data_loader)
             epoch_loss = 0.0
             for X,y in data_loader:
                 optimizer.zero_grad()
@@ -44,7 +47,8 @@ class RecurrentNeuralNetwork(nn.Module):
                 loss = loss_function(pred,y)
                 loss.backward()
                 optimizer.step()
-                epoch_loss += loss.item()
+                epoch_loss += loss.item() / num_batches
+            print(f"Avg Loss for epoch {i}: {epoch_loss}")
             all_loss.append(epoch_loss)
         return all_loss
     
@@ -52,10 +56,12 @@ class RecurrentNeuralNetwork(nn.Module):
         # Just get the loss
         self.eval()
         test_loss = 0.0
+        num_batches = len(data_loader)
         with torch.no_grad():
             for X,y in data_loader:
                 pred = self(X)
-                test_loss+=loss_function(pred,y).item()
+                test_loss+=loss_function(pred,y).item()/num_batches
+        print(f"Avg Test Loss: {test_loss}")
         return test_loss
 
 
