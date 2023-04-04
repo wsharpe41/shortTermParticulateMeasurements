@@ -44,12 +44,13 @@ def split_all_files(input_path,output_path,dp_length,pred_length):
         # Append all datapoints to data
         X = np.append(X, datapoints, axis=0)
         y = np.append(y, labels, axis=0)    
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X)
-    y = scaler.fit_transform(y)
+    X_scaler = StandardScaler()
+    X = X_scaler.fit_transform(X)
+    y_scaler = StandardScaler()
+    y = y_scaler.fit_transform(y)
 
     write_input_and_output(X,y,output_path)  
-    return X, y
+    return X_scaler,y_scaler
 
 
 def write_input_and_output(X,y,output_path):
@@ -63,5 +64,5 @@ def write_input_and_output(X,y,output_path):
 
 
 if __name__ == '__main__':
-    split_all_files("pm_data/","processed_data/train_data",dp_length=48,pred_length=6)
+    X_scaler, y_scaler = split_all_files("pm_data/","processed_data",dp_length=48,pred_length=6)
 

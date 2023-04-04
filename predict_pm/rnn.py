@@ -56,13 +56,20 @@ class RecurrentNeuralNetwork(nn.Module):
         # Just get the loss
         self.eval()
         test_loss = 0.0
+        all_losses = []
+        pred_v_actual = [[],[]]
         num_batches = len(data_loader)
         with torch.no_grad():
             for X,y in data_loader:
                 pred = self(X)
-                test_loss+=loss_function(pred,y).item()/num_batches
+                pred_v_actual[0].append(pred)
+                pred_v_actual[1].append(y)
+                batch_loss=loss_function(pred,y).item()/num_batches
+                test_loss += batch_loss
+                all_losses.append(batch_loss)
+
         print(f"Avg Test Loss: {test_loss}")
-        return test_loss
+        return test_loss, all_losses, pred_v_actual
 
 
 class PMDataset(Dataset):
@@ -131,8 +138,8 @@ def read_data(data_path):
     val_dataset = PMDataset(X_val,y_val)
     test_dataset = PMDataset(X_test,y_test)
     train_loader = DataLoader(train_dataset,batch_size=16,shuffle=True)
-    val_loader = DataLoader(val_dataset,batch_size=4,shuffle=False)
-    test_loader = DataLoader(test_dataset,batch_size=4,shuffle=False)
+    val_loader = DataLoader(val_dataset,batch_size=16,shuffle=False)
+    test_loader = DataLoader(test_dataset,batch_size=16,shuffle=False)
     return train_loader, val_loader, test_loader
 
 
