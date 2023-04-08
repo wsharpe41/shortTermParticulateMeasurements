@@ -39,6 +39,7 @@ def split_all_files(input_path,output_path,dp_length,pred_length):
     y = np.empty((0, pred_length))
     # For each file in pmu_data, split into datapoints of length 100
     for file in os.listdir(input_path):
+        print("Processing file: " + file)
         datapoints,labels = split_csv_to_datapoints(input_path + file, dp_length,pred_length)
         # get the averages of correlations
         # Append all datapoints to data

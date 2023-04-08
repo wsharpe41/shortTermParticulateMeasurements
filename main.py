@@ -8,10 +8,12 @@ import torch
 # Need to allow access to unscaled data
 X_scaler,y_scaler = process_data.split_all_files("pm_data/","processed_data",dp_length=48,pred_length=6)
 train_loader, val_loader, test_loader = rnn.read_data('processed_data')
-epochs = 20
+epochs =  100
 lr = 0.001
 mse = MeanSquaredError()
-model = rnn.RecurrentNeuralNetwork(
+
+
+model = rnn.GRU(
     hidden_size=64,
     in_size=1,
     out_size=6,
@@ -19,6 +21,6 @@ model = rnn.RecurrentNeuralNetwork(
     dropout=0.0
 )
 
-model.train_model(epochs,lr,mse,train_loader)
-test_loss, all_losses, pred_v_actual = model.test_model(mse,val_loader)
-visualize_prediction.plot_average(pred_v_actual,y_scaler)
+model.train_model(epochs,lr,mse,train_loader,val_loader)
+test_loss, all_losses, pred_v_actual = model.test_model(mse,test_loader)
+#visualize_prediction.plot_average(pred_v_actual,y_scaler)
