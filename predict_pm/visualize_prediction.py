@@ -3,6 +3,7 @@ import numpy as np
 import torch
 
 def plot_average(pred_v_actual,scaler):
+
     pred = pred_v_actual[0]
     y= pred_v_actual[1]
     # Unscale the data
@@ -48,3 +49,15 @@ def plot_average(pred_v_actual,scaler):
     plt.ylabel("Actual")
     plt.show()
     plt.savefig("residuals.png")
+
+# Plot train and validation loss
+def plot_loss(train_loss,val_loss):
+    plt.figure(3)
+    plt.plot(train_loss,color='blue',label="Train Loss")
+    plt.plot(val_loss,color='red',label="Validation Loss")
+    plt.title("Train and Validation Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend(loc='upper right')
+    plt.show()
+    plt.savefig("train_val_loss.png")

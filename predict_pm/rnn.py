@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchmetrics import MeanSquaredError
 
-class RecurrentNeuralNetwork(nn.Module):
+class RNN(nn.Module):
     
     def __init__(self,hidden_size,in_size,out_size,num_layers,dropout) -> None:
         super().__init__()
@@ -41,7 +41,8 @@ class RecurrentNeuralNetwork(nn.Module):
     
     def train_model(self,epochs,lr,loss_function,data_loader,val_loader):
         #device = "cuda" if torch.cuda.is_available() else "cpu"
-        all_loss = []
+        train_loss = []
+        val_loss = []
         optimizer = torch.optim.Adam(self.parameters(),lr)
         num_batches = len(data_loader)
         for i in range(epochs):
@@ -54,16 +55,16 @@ class RecurrentNeuralNetwork(nn.Module):
                 optimizer.step()
                 epoch_loss += loss.item() / num_batches
             print(f"Train Loss for epoch {i}: {epoch_loss}")
-            all_loss.append(epoch_loss)
+            train_loss.append(epoch_loss)
             
             for X,y in val_loader:
                 pred = self(X)
                 loss = loss_function(pred,y)
                 epoch_loss += loss.item() / num_batches
             print(f"Val Loss for epoch {i}: {epoch_loss}")
-            all_loss.append(epoch_loss)
+            val_loss.append(epoch_loss)
 
-        return all_loss
+        return train_loss, val_loss
     
     def test_model(self,loss_function,data_loader):
         # Just get the loss
@@ -246,48 +247,14 @@ class LSTM(nn.Module):
 class PMDataset(Dataset):
     def __init__(self,x,y) -> None:
         super().__init__()
-        #self.data = data
-        #self.sequence_length = sequence_length
-        #self.target_length = target_length
         self.x = x
         self.y = y
 
     def __len__(self):
-        # This should return the length of all sequences in each datapoint
-        # sequences = 0
-        # for csv in self.data:
-        #     total_seqs += len(csv) - self.sequence_length + 1
         return len(self.x)
     
     def __getitem__(self, pos):
-        # Make this index the starting index
-        # dp,idx = pos
-        # csv = self.data[dp]
-        # if len(csv) > idx + self.sequence_length + self.target_length:
-        #     x = csv[idx:idx+self.sequence_length]
-        #     y = csv[idx+self.sequence_length:idx+self.sequence_length+self.target_length]
-
-        # else:
-        #     # If index is too big pass the seqence until the end and then zeros?
-        #     # Number of zeros is equal to the 
-        #     if len(csv) <= idx + self.sequence_length:
-        #         padding_length = (idx + self.sequence_length) - len(csv) + 1
-        #         padding = np.zeros(padding_length)
-        #         csv = torch.cat((padding, csv), 0)
-        #         x = csv[idx:idx+self.sequence_length]
-        #         y = np.zeros(self.target_length)
-        #     # There are enough x values but not enough y values to predict
-        #     else:
-        #         x = csv[idx:idx+self.sequence_length]
-        #         padding_length = (idx + self.sequence_length + self.target_length) - len(csv) + 1
-        #         padding = np.zeros(padding_length)
-        #         csv = torch.cat((padding, csv), 0)
-        #         y = csv[idx+self.sequence_length:idx+self.sequence_length+self.target_length]
         return torch.Tensor(self.x[pos]), torch.Tensor(self.y[pos])
-
-
-
-
 
 
 def read_data(data_path):
@@ -312,6 +279,3 @@ def read_data(data_path):
     val_loader = DataLoader(val_dataset,batch_size=16,shuffle=False)
     test_loader = DataLoader(test_dataset,batch_size=16,shuffle=False)
     return train_loader, val_loader, test_loader
-
-
-read_data("processed_data")
