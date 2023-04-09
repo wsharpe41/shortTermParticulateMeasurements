@@ -121,7 +121,8 @@ class GRU(nn.Module):
     
     def train_model(self,epochs,lr,loss_function,data_loader,val_loader):
         #device = "cuda" if torch.cuda.is_available() else "cpu"
-        all_loss = []
+        train_loss = []
+        val_loss = []
         optimizer = torch.optim.Adam(self.parameters(),lr)
         num_batches = len(data_loader)
         for i in range(epochs):
@@ -134,16 +135,17 @@ class GRU(nn.Module):
                 optimizer.step()
                 epoch_loss += loss.item() / num_batches
             print(f"Train Loss for epoch {i}: {epoch_loss}")
-            all_loss.append(epoch_loss)
+            train_loss.append(epoch_loss)
             
             for X,y in val_loader:
                 pred = self(X)
                 loss = loss_function(pred,y)
                 epoch_loss += loss.item() / num_batches
             print(f"Val Loss for epoch {i}: {epoch_loss}")
-            all_loss.append(epoch_loss)
+            val_loss.append(epoch_loss)
 
-        return all_loss
+        return train_loss, val_loss
+    
     
     def test_model(self,loss_function,data_loader):
         # Just get the loss
@@ -201,7 +203,8 @@ class LSTM(nn.Module):
     
     def train_model(self,epochs,lr,loss_function,data_loader,val_loader):
         #device = "cuda" if torch.cuda.is_available() else "cpu"
-        all_loss = []
+        train_loss = []
+        val_loss = []
         optimizer = torch.optim.Adam(self.parameters(),lr)
         num_batches = len(data_loader)
         for i in range(epochs):
@@ -214,16 +217,16 @@ class LSTM(nn.Module):
                 optimizer.step()
                 epoch_loss += loss.item() / num_batches
             print(f"Train Loss for epoch {i}: {epoch_loss}")
-            all_loss.append(epoch_loss)
+            train_loss.append(epoch_loss)
             
             for X,y in val_loader:
                 pred = self(X)
                 loss = loss_function(pred,y)
                 epoch_loss += loss.item() / num_batches
             print(f"Val Loss for epoch {i}: {epoch_loss}")
-            all_loss.append(epoch_loss)
-
-        return all_loss
+            val_loss.append(epoch_loss)
+        return train_loss, val_loss
+    
     
     def test_model(self,loss_function,data_loader):
         # Just get the loss

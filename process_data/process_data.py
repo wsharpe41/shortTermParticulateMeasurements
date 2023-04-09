@@ -23,13 +23,14 @@ def split_csv_to_datapoints(path, dp_length,pred_length):
         datapoint = pm_measurments[i:i + dp_length]
         # Get label
         label = pm_measurments[i + dp_length:i + dp_length + pred_length]
+          
         # Append datapoint and label to X and y
         X = np.append(X, [datapoint], axis=0)
         y = np.append(y, [label], axis=0)
-        # Get correlation between datapoint and label
-        #corr = np.corrcoef(datapoint, label)[0, 1]
-        # Append correlation to correlations
-        #correlations.append(corr)
+        
+        # Replace all negative values with 0 in x and y
+        X[X < 0] = 0
+        y[y < 0] = 0
     return X, y
 
 def split_all_files(input_path,output_path,dp_length,pred_length):

@@ -33,10 +33,9 @@ def plot_average(pred_v_actual,scaler):
     plt.plot(unscaled_y,color='blue',label="Actual",alpha=0.15)
     plt.title("Averaged Prediction vs Actual")
     plt.xlabel("Batch #")
-    plt.ylabel("Scaled PM2.5")
+    plt.ylabel("PM2.5")
     plt.legend(loc='upper right')
-    plt.show()
-    plt.savefig("average_pred_vs_actual.png")
+    plt.savefig("average_pred_vs_actual_three_day.png")
     
     # Plot residuals
     residuals = []
@@ -47,8 +46,7 @@ def plot_average(pred_v_actual,scaler):
     plt.title("Residuals v Actual")
     plt.xlabel("Residuals")
     plt.ylabel("Actual")
-    plt.show()
-    plt.savefig("residuals.png")
+    plt.savefig("residuals_three_day.png")
 
 # Plot train and validation loss
 def plot_loss(train_loss,val_loss):
@@ -57,7 +55,6 @@ def plot_loss(train_loss,val_loss):
     plt.plot(val_loss,color='red',label="Validation Loss")
     plt.title("Train and Validation Loss")
     plt.xlabel("Epoch")
-    plt.ylabel("Loss")
+    plt.ylabel("MSE")
     plt.legend(loc='upper right')
-    plt.show()
-    plt.savefig("train_val_loss.png")
+    plt.savefig("train_val_loss_three_day.png")

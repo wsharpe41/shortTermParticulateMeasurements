@@ -6,15 +6,15 @@ import torch
 
 
 # Need to allow access to unscaled data
-X_scaler,y_scaler = process_data.split_all_files("pm_data/","processed_data",dp_length=48,pred_length=6)
+X_scaler,y_scaler = process_data.split_all_files("pm_data/","processed_data",dp_length=72,pred_length=6)
 train_loader, val_loader, test_loader = rnn.read_data('processed_data')
-epochs =  20
-lr = 0.001
+epochs =  15
+lr = 0.0001
 mse = MeanSquaredError()
 
 
 model = rnn.GRU(
-    hidden_size=256,
+    hidden_size=20,
     in_size=1,
     out_size=6,
     num_layers=1,
