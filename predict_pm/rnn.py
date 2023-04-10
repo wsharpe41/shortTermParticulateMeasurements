@@ -8,7 +8,7 @@ from torchmetrics import MeanSquaredError
 
 class RNN(nn.Module):
     
-    def __init__(self,hidden_size,in_size,out_size,num_layers,dropout) -> None:
+    def __init__(self,hidden_size,in_size,out_size,num_layers,dropout,l1=256,l2=128) -> None:
         super().__init__()
         #self.rnn_layers = rnn_layers
         self.hidden_size = hidden_size
@@ -18,9 +18,9 @@ class RNN(nn.Module):
         # Add LSTM models
         self.lstm = nn.RNN(self.input_size,self.hidden_size,num_layers=self.num_layers,dropout=dropout,batch_first=True)
         # Add dense layer
-        self.dense = nn.Linear(self.hidden_size,512)
-        self.dense2 = nn.Linear(512,256)
-        self.dense3 = nn.Linear(256,self.output_size)
+        self.dense = nn.Linear(self.hidden_size,l1)
+        self.dense2 = nn.Linear(l1,l2)
+        self.dense3 = nn.Linear(l2,self.output_size)
 
         self.relu = nn.ReLU()
 
@@ -43,7 +43,7 @@ class RNN(nn.Module):
         #device = "cuda" if torch.cuda.is_available() else "cpu"
         train_loss = []
         val_loss = []
-        optimizer = torch.optim.Adam(self.parameters(),lr)
+        optimizer = optim.SGD(net.parameters(), lr=config["lr"], momentum=0.9)
         num_batches = len(data_loader)
         for i in range(epochs):
             epoch_loss = 0.0
@@ -260,7 +260,7 @@ class PMDataset(Dataset):
         return torch.Tensor(self.x[pos]), torch.Tensor(self.y[pos])
 
 
-def read_data(data_path):
+def read_data(data_path='./processed_data'):
     data_txt = codecs.open(filename=data_path + "/input_data.json", mode="r", encoding='utf-8').read()
     data = json.loads(data_txt)
     data = torch.Tensor(data)
