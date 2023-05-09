@@ -3,3 +3,7 @@ pandas
 sklearn
 torch
 torchmetrics
+ray[tune]
+matplotlib
+plotly
+
